@@ -1,0 +1,264 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_qU79TGRRY3ITP2XKqD50.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_qU79TGRRY3ITP2XKqD50.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_qU79TGRRY3ITP2XKqD50.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_qU79TGRRY3ITP2XKqD50.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_qU79TGRRY3ITP2XKqD50.woff2) format('woff2');
+}
+
+@layer base {
+  :root {
+    /* === WAYMARK DESIGN SYSTEM === */
+    /* Inspired by premium travel apps: deep ocean navy + warm amber + cream */
+
+    /* Brand */
+    --brand: 210 80% 24%;            /* deep navy */
+    --brand-foreground: 40 90% 96%;  /* warm white */
+
+    /* Primary — deep ocean navy */
+    --primary: 210 80% 24%;
+    --primary-foreground: 40 90% 96%;
+
+    /* Secondary — warm sand */
+    --secondary: 40 30% 92%;
+    --secondary-foreground: 210 80% 24%;
+
+    /* Accent — amber gold */
+    --accent: 35 85% 55%;
+    --accent-foreground: 210 80% 24%;
+
+    /* Surfaces */
+    --background: 40 40% 97%;        /* warm cream */
+    --foreground: 210 60% 12%;       /* near-black navy */
+    --card: 0 0% 100%;
+    --card-foreground: 210 60% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 60% 12%;
+
+    /* Muted */
+    --muted: 40 20% 93%;
+    --muted-foreground: 210 15% 45%;
+
+    /* Destructive */
+    --destructive: 0 72% 52%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success — teal */
+    --success: 170 70% 36%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning — orange */
+    --warning: 30 90% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Borders + inputs */
+    --border: 40 20% 88%;
+    --input: 40 20% 88%;
+    --ring: 35 85% 55%;
+
+    /* Charts */
+    --chart-1: 210 80% 24%;
+    --chart-2: 35 85% 55%;
+    --chart-3: 170 70% 36%;
+    --chart-4: 0 72% 52%;
+    --chart-5: 30 90% 50%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --brand: 200 85% 60%;
+    --brand-foreground: 210 60% 8%;
+
+    --primary: 200 85% 60%;
+    --primary-foreground: 210 60% 8%;
+
+    --secondary: 210 30% 16%;
+    --secondary-foreground: 200 85% 60%;
+
+    --accent: 35 85% 55%;
+    --accent-foreground: 210 60% 8%;
+
+    --background: 210 50% 8%;
+    --foreground: 40 30% 95%;
+    --card: 210 45% 11%;
+    --card-foreground: 40 30% 95%;
+    --popover: 210 45% 11%;
+    --popover-foreground: 40 30% 95%;
+
+    --muted: 210 30% 16%;
+    --muted-foreground: 210 15% 60%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 40 30% 95%;
+
+    --success: 170 60% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 30 80% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 210 25% 18%;
+    --input: 210 25% 18%;
+    --ring: 35 85% 55%;
+
+    --chart-1: 200 85% 60%;
+    --chart-2: 35 85% 55%;
+    --chart-3: 170 60% 40%;
+    --chart-4: 0 62% 45%;
+    --chart-5: 30 80% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scroll-snap-x {
+    scroll-snap-type: x mandatory;
+  }
+  .snap-start {
+    scroll-snap-align: start;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  .glass-dark {
+    background: rgba(20, 30, 48, 0.65);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+}
+
+@layer keyframes {
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scale-in {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(0.8);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+.animate-scale-in {
+  animation: scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted) / 0.5) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
