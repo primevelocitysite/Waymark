@@ -117,7 +117,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "Waymark <bookings@waymark.app>";
+    const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "Waymark <bookings@waymark.sbs>";
 
     const html = buildEmailHtml(params);
 
