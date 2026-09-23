@@ -17,6 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import { formatPrice, nightsBetween } from '@/lib/format';
 import { useCheckout } from '@/hooks/use-data';
+import { useAuth } from '@/hooks/use-auth';
 import { toast } from '@/hooks/use-toast';
 import type { Listing } from '@/lib/types';
 
@@ -38,6 +39,8 @@ export function CheckoutSheet({
   guests: number;
 }) {
   const { checkout, processing } = useCheckout();
+  const { profile, user } = useAuth();
+  const [confirmationId, setConfirmationId] = useState('');
   const [step, setStep] = useState<Step>('billing');
   const [form, setForm] = useState({
     name: '',
@@ -58,11 +61,11 @@ export function CheckoutSheet({
       setStep('billing');
       setForm((prev) => ({
         ...prev,
-        name: prev.name || 'Alex Rivera',
-        email: prev.email || 'alex.rivera@waymark.app',
+        name: profile?.full_name || prev.name || '',
+        email: profile?.email || user?.email || prev.email || '',
       }));
     }
-  }, [open]);
+  }, [open, profile, user]);
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 1;
@@ -137,9 +140,10 @@ export function CheckoutSheet({
       billing_country: form.country,
     });
 
-    if (result.success) {
+    if (result.success && result.confirmationId) {
+      setConfirmationId(result.confirmationId);
       setStep('confirmed');
-      toast({ title: 'Payment successful!', description: `Confirmation email sent to ${form.email}` });
+      toast({ title: 'Payment successful!', description: 'Your email app will open to confirm.' });
     } else {
       setStep('payment');
       toast({ title: 'Payment failed', description: result.error || 'Please try again.', variant: 'destructive' });
@@ -192,7 +196,7 @@ export function CheckoutSheet({
               Your booking at {listing.title} is confirmed.
             </p>
             <p className="text-muted-foreground text-xs mb-6">
-              A confirmation email has been sent to {form.email}
+              Your email app has opened with the booking details addressed to our team.
             </p>
             <div className="bg-muted/50 rounded-2xl p-5 text-left mb-6">
               <div className="flex justify-between text-sm mb-3">
@@ -209,7 +213,7 @@ export function CheckoutSheet({
               </div>
               <div className="flex justify-between text-sm mb-3">
                 <span className="text-muted-foreground">Confirmation</span>
-                <span className="font-semibold font-mono text-xs">WM-{Date.now().toString(36).toUpperCase().slice(-8)}</span>
+                <span className="font-semibold font-mono text-xs">{confirmationId}</span>
               </div>
               <div className="border-t border-border pt-3 flex justify-between">
                 <span className="font-bold">Total Paid</span>
@@ -255,7 +259,7 @@ export function CheckoutSheet({
                     <input
                       value={form.name}
                       onChange={(e) => update('name', e.target.value)}
-                      placeholder="Alex Rivera"
+                      placeholder="Jordan Mitchell"
                       className="w-full px-3 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </FormField>
@@ -264,7 +268,7 @@ export function CheckoutSheet({
                       type="email"
                       value={form.email}
                       onChange={(e) => update('email', e.target.value)}
-                      placeholder="alex@example.com"
+                      placeholder="jordan.mitchell@gmail.com"
                       className="w-full px-3 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </FormField>
@@ -272,7 +276,7 @@ export function CheckoutSheet({
                     <input
                       value={form.address}
                       onChange={(e) => update('address', e.target.value)}
-                      placeholder="123 Market Street"
+                      placeholder="485 Folsom Street"
                       className="w-full px-3 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </FormField>
@@ -289,7 +293,7 @@ export function CheckoutSheet({
                       <input
                         value={form.zip}
                         onChange={(e) => update('zip', e.target.value)}
-                        placeholder="94103"
+                        placeholder="94105"
                         className="w-full px-3 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                       />
                     </FormField>
@@ -346,7 +350,7 @@ export function CheckoutSheet({
                     <input
                       value={form.cardName}
                       onChange={(e) => update('cardName', e.target.value)}
-                      placeholder="ALEX RIVERA"
+                      placeholder="JORDAN MITCHELL"
                       className="w-full px-3 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring uppercase"
                     />
                   </FormField>
@@ -354,7 +358,7 @@ export function CheckoutSheet({
                     <input
                       value={form.cardNumber}
                       onChange={(e) => update('cardNumber', formatCardNumber(e.target.value))}
-                      placeholder="4242 4242 4242 4242"
+                      placeholder="4532 1845 9021 3674"
                       className="w-full px-3 py-3 rounded-xl border border-border bg-background text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </FormField>
@@ -363,7 +367,7 @@ export function CheckoutSheet({
                       <input
                         value={form.cardExpiry}
                         onChange={(e) => update('cardExpiry', formatExpiry(e.target.value))}
-                        placeholder="12/28"
+                        placeholder="09/27"
                         className="w-full px-3 py-3 rounded-xl border border-border bg-background text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
                       />
                     </FormField>
@@ -371,7 +375,7 @@ export function CheckoutSheet({
                       <input
                         value={form.cardCvc}
                         onChange={(e) => update('cardCvc', e.target.value.replace(/\D/g, '').slice(0, 4))}
-                        placeholder="123"
+                        placeholder="847"
                         className="w-full px-3 py-3 rounded-xl border border-border bg-background text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
                       />
                     </FormField>

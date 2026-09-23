@@ -10,6 +10,8 @@ import {
   Sparkles,
   ChevronRight,
 } from 'lucide-react';
+import { NotificationsSheet } from '@/components/notifications-sheet';
+import { useNotifications } from '@/hooks/use-data';
 import { cn } from '@/lib/utils';
 import { formatPrice, formatRating, getGreeting } from '@/lib/format';
 import { useListings, useFeaturedListings, useSavedListings } from '@/hooks/use-data';
@@ -39,8 +41,10 @@ export function HomeScreen({
   const { listings, loading } = useListings();
   const { listings: featured } = useFeaturedListings();
   const { saved } = useSavedListings();
+  const { unreadCount } = useNotifications();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [notifOpen, setNotifOpen] = useState(false);
 
   const greeting = getGreeting();
 
@@ -73,9 +77,16 @@ export function HomeScreen({
           <p className="text-xs text-muted-foreground font-medium">{greeting}</p>
           <h1 className="text-2xl font-bold tracking-tight mt-0.5">Let's explore</h1>
         </div>
-        <button className="relative p-2.5 rounded-full bg-muted/60 hover:bg-muted transition-colors">
+        <button
+          onClick={() => setNotifOpen(true)}
+          className="relative p-2.5 rounded-full bg-muted/60 hover:bg-muted transition-colors"
+        >
           <Bell className="h-5 w-5 text-foreground" />
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-accent" />
+          {unreadCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-accent text-white text-[9px] font-bold flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </button>
       </div>
 
@@ -315,6 +326,8 @@ export function HomeScreen({
           </section>
         </>
       )}
+
+      <NotificationsSheet open={notifOpen} onClose={() => setNotifOpen(false)} />
     </div>
   );
 }

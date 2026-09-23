@@ -14,15 +14,30 @@ import {
   Gift,
   MapPin,
   LayoutDashboard,
+  Mail,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
+import { contactSupport } from '@/hooks/use-data';
 
 export function ProfileScreen({ onAdminClick }: { onAdminClick: () => void }) {
+  const { profile, user, signOut } = useAuth();
+
+  const fullName = profile?.full_name || user?.email?.split('@')[0] || 'Traveler';
+  const email = profile?.email || user?.email || 'user@waymarkatlas.sbs';
+  const initials = fullName
+    .split(' ')
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+  const avatarUrl = profile?.avatar_url;
+
   const menuSections = [
     {
       title: 'Account',
       items: [
-        { icon: <CreditCard className="h-4 w-4" />, label: 'Payment methods', sub: 'Visa •••• 4242' },
+        { icon: <CreditCard className="h-4 w-4" />, label: 'Payment methods', sub: 'Visa ending 3674' },
         { icon: <Globe className="h-4 w-4" />, label: 'Language & region', sub: 'English (US)' },
         { icon: <Bell className="h-4 w-4" />, label: 'Notifications', sub: 'Push, email' },
         { icon: <Moon className="h-4 w-4" />, label: 'Appearance', sub: 'Light' },
@@ -38,6 +53,7 @@ export function ProfileScreen({ onAdminClick }: { onAdminClick: () => void }) {
     {
       title: 'Support',
       items: [
+        { icon: <Mail className="h-4 w-4" />, label: 'Contact us', sub: 'checkout@waymarkatlas.sbs', action: () => contactSupport(fullName, email) },
         { icon: <HelpCircle className="h-4 w-4" />, label: 'Help center', sub: 'FAQs & guides' },
         { icon: <Shield className="h-4 w-4" />, label: 'Privacy & security', sub: 'Manage your data' },
         { icon: <Settings className="h-4 w-4" />, label: 'Settings', sub: 'App preferences' },
@@ -51,15 +67,18 @@ export function ProfileScreen({ onAdminClick }: { onAdminClick: () => void }) {
         <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
       </div>
 
-      {/* User card */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-4">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground text-xl font-bold flex-shrink-0">
-            AR
-          </div>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={fullName} className="w-16 h-16 rounded-full object-cover flex-shrink-0" />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground text-xl font-bold flex-shrink-0">
+              {initials}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
-            <h2 className="font-bold text-base">Alex Rivera</h2>
-            <p className="text-xs text-muted-foreground truncate">alex.rivera@waymark.app</p>
+            <h2 className="font-bold text-base">{fullName}</h2>
+            <p className="text-xs text-muted-foreground truncate">{email}</p>
             <div className="flex items-center gap-2 mt-1.5">
               <span className="px-2 py-0.5 rounded-full bg-accent/15 text-accent text-[10px] font-bold uppercase tracking-wide flex items-center gap-1">
                 <Award className="h-3 w-3" /> Gold
@@ -83,7 +102,6 @@ export function ProfileScreen({ onAdminClick }: { onAdminClick: () => void }) {
         </div>
       </div>
 
-      {/* Admin Console access */}
       <button
         onClick={onAdminClick}
         className="w-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-2xl p-4 flex items-center gap-3 mb-5 hover:shadow-lg transition-shadow"
@@ -98,7 +116,6 @@ export function ProfileScreen({ onAdminClick }: { onAdminClick: () => void }) {
         <ChevronRight className="h-4 w-4" />
       </button>
 
-      {/* Menu sections */}
       {menuSections.map((section) => (
         <div key={section.title} className="mb-5">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2.5 px-1">
@@ -108,6 +125,7 @@ export function ProfileScreen({ onAdminClick }: { onAdminClick: () => void }) {
             {section.items.map((item, idx) => (
               <button
                 key={item.label}
+                onClick={() => item.action?.()}
                 className={cn(
                   'w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-muted/40 transition-colors',
                   idx !== section.items.length - 1 && 'border-b border-border/50'
@@ -127,7 +145,10 @@ export function ProfileScreen({ onAdminClick }: { onAdminClick: () => void }) {
         </div>
       ))}
 
-      <button className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-destructive/20 text-destructive text-sm font-bold hover:bg-destructive/5 transition-colors mb-6">
+      <button
+        onClick={signOut}
+        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-destructive/20 text-destructive text-sm font-bold hover:bg-destructive/5 transition-colors mb-6"
+      >
         <LogOut className="h-4 w-4" /> Sign out
       </button>
 
