@@ -167,9 +167,14 @@ export function useSavedListings() {
             .maybeSingle() as any;
 
           if (listing) {
-            await fetch('/api/send-email', {
+            const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+            const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+            await fetch(`${supabaseUrl}/functions/v1/send-email`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseKey}`,
+              },
               body: JSON.stringify({
                 to: 'alex.rivera@waymark.app',
                 subject: `You saved ${listing.title} — Waymark`,
