@@ -2,14 +2,48 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { Plane, Hotel, Home, Car, Sailboat } from 'lucide-react';
+import { Plane, Hotel, Home, Car, Sailboat, Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function SignInScreen() {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!email.trim() || !password.trim()) {
+      setError('Please enter your email and password.');
+      return;
+    }
+    if (mode === 'signup' && !name.trim()) {
+      setError('Please enter your name.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    setLoading(true);
+    if (mode === 'signin') {
+      const { error } = await signInWithEmail(email, password);
+      if (error) setError(error === 'Invalid login credentials' ? 'Incorrect email or password.' : error);
+    } else {
+      const { error } = await signUpWithEmail(email, password, name);
+      if (error) setError(error);
+    }
+    setLoading(false);
+  };
 
   const handleGoogle = async () => {
-    setLoading(true);
+    setGoogleLoading(true);
     await signInWithGoogle();
   };
 
@@ -23,7 +57,7 @@ export function SignInScreen() {
         <Sailboat className="absolute top-[45%] left-[8%] h-7 w-7 text-white/10 animate-float" style={{ animationDelay: '2s' }} />
       </div>
 
-      <div className="relative z-10 text-center mb-12">
+      <div className="relative z-10 text-center mb-10">
         <div className="flex items-center justify-center gap-2 mb-4">
           <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center border border-white/20">
             <Plane className="h-6 w-6 text-white" />
@@ -37,17 +71,81 @@ export function SignInScreen() {
 
       <div className="relative z-10 w-full max-w-sm">
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
-          <h2 className="text-xl font-bold text-white text-center mb-2">Welcome</h2>
-          <p className="text-white/50 text-sm text-center mb-8">
-            Sign in to start booking your next adventure
+          <h2 className="text-xl font-bold text-white text-center mb-2">
+            {mode === 'signin' ? 'Welcome back' : 'Create account'}
+          </h2>
+          <p className="text-white/50 text-sm text-center mb-6">
+            {mode === 'signin' ? 'Sign in to start booking your next adventure' : 'Join Waymark to start your journey'}
           </p>
 
+          {/* Email/password form */}
+          <form onSubmit={handleSubmit} className="space-y-3 mb-4">
+            {mode === 'signup' && (
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Full name"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
+                />
+              </div>
+            )}
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email address"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
+              />
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
+              />
+            </div>
+
+            {error && (
+              <p className="text-red-400 text-xs text-center px-2">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/10 backdrop-blur text-white font-semibold text-sm hover:bg-white/15 transition-colors disabled:opacity-60 border border-white/10"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  {mode === 'signin' ? 'Sign in' : 'Create account'} <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-white/30 text-xs">or</span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+
+          {/* Google button */}
           <button
             onClick={handleGoogle}
-            disabled={loading}
+            disabled={googleLoading}
             className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl bg-white text-slate-900 font-semibold text-sm hover:bg-white/90 transition-colors disabled:opacity-60"
           >
-            {loading ? (
+            {googleLoading ? (
               <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-slate-900 animate-spin" />
             ) : (
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -60,11 +158,19 @@ export function SignInScreen() {
             Continue with Google
           </button>
 
-          <div className="mt-6 pt-6 border-t border-white/10">
-            <p className="text-white/40 text-xs text-center leading-relaxed">
-              By continuing, you agree to Waymark's Terms of Service and Privacy Policy.
-            </p>
-          </div>
+          {/* Toggle mode */}
+          <p className="text-center text-white/40 text-sm mt-6">
+            {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
+            <button
+              onClick={() => {
+                setMode(mode === 'signin' ? 'signup' : 'signin');
+                setError(null);
+              }}
+              className="text-white/80 font-semibold hover:text-white transition-colors"
+            >
+              {mode === 'signin' ? 'Sign up' : 'Sign in'}
+            </button>
+          </p>
         </div>
       </div>
 

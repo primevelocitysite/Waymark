@@ -10,9 +10,45 @@ export function getEmailAddress(prefix: string): string {
   return `${prefix}@${COMPANY_DOMAIN}`;
 }
 
-export function openMailto(to: string, subject: string, body: string) {
-  const mailtoUrl = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.location.href = mailtoUrl;
+async function sendLiveEmail(params: {
+  to: string;
+  subject: string;
+  type: string;
+  body?: string;
+  bookingId?: string;
+  listingTitle?: string;
+  checkIn?: string;
+  checkOut?: string;
+  guests?: number;
+  totalPrice?: number;
+  recipientName?: string;
+}): Promise<void> {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+    const functionUrl = `${supabaseUrl}/functions/v1/send-email`;
+    await fetch(functionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${anonKey}`,
+      },
+      body: JSON.stringify(params),
+    });
+  } catch {
+    // Non-fatal — email is best-effort
+  }
+}
+
+export function contactSupport(userName: string, userEmail: string) {
+  const to = getEmailAddress('checkout');
+  sendLiveEmail({
+    to,
+    subject: `Customer Inquiry from ${userName}`,
+    type: 'admin_alert',
+    body: `Customer inquiry from:\nName: ${userName}\nEmail: ${userEmail}\n\nPlease describe your request below:`,
+    recipientName: userName,
+  });
 }
 
 function getCategoryEmailPrefix(category: string): string {
@@ -33,24 +69,6 @@ function detectCardBrand(number: string): string {
   if (cleaned.startsWith('3')) return 'amex';
   if (cleaned.startsWith('6')) return 'discover';
   return 'card';
-}
-
-export function contactSupport(userName: string, userEmail: string) {
-  const to = getEmailAddress('checkout');
-  const subject = 'Customer Inquiry — Waymark Atlas';
-  const body = `Dear Waymark Atlas Support,
-
-Customer inquiry from:
-Name: ${userName}
-Email: ${userEmail}
-
-Please describe your request below:
-
-
-Best regards,
-${userName}
-`;
-  openMailto(to, subject, body);
 }
 
 export function useListings(category?: Category) {
@@ -157,10 +175,13 @@ export function useSavedListings() {
       try {
         const { data: listing } = await supabase.from('listings').select('title').eq('id', listingId).maybeSingle() as any;
         if (listing) {
-          const to = getEmailAddress('saves');
-          const subject = `Saved: ${listing.title} — Waymark Atlas`;
-          const body = `You saved ${listing.title} to your wishlist on Waymark Atlas.\n\nBook it before someone else does!\n\nBest,\nThe Waymark Atlas Team`;
-          openMailto(to, subject, body);
+          sendLiveEmail({
+            to: getEmailAddress('saves'),
+            subject: `Saved: ${listing.title} — Waymark Atlas`,
+            type: 'save_notification',
+            listingTitle: listing.title,
+            recipientName: 'Traveler',
+          });
         }
       } catch { /* non-fatal */ }
     }
@@ -274,30 +295,18 @@ export function useCheckout() {
       const listingTitle = listing?.title || 'Your trip';
       const prefix = getCategoryEmailPrefix(listing?.category || 'hotels');
       const to = getEmailAddress(prefix);
-      const subject = `Booking Confirmed — ${listingTitle} | Waymark Atlas`;
-      const body = `Dear ${params.booker_name},
-
-Your booking is confirmed! Here are your trip details:
-
-Destination: ${listingTitle}
-Check-in: ${params.check_in}
-Check-out: ${params.check_out}
-Guests: ${params.guests}
-Confirmation ID: ${confirmationId}
-
-Payment Summary:
-- Card: ${brand} ending ${last4}
-- Total Paid: $${params.total_price.toLocaleString()}
-
-Billing Address:
-${params.card_name}
-${params.billing_address}
-${params.billing_city}, ${params.billing_zip}
-${params.billing_country}
-
-Thank you for choosing Waymark Atlas!`;
-
-      openMailto(to, subject, body);
+      sendLiveEmail({
+        to: getEmailAddress(prefix),
+        subject: `Booking Confirmed — ${listingTitle} | Waymark Atlas`,
+        type: 'booking_confirmation',
+        bookingId: booking.id,
+        listingTitle,
+        checkIn: params.check_in,
+        checkOut: params.check_out,
+        guests: params.guests,
+        totalPrice: params.total_price,
+        recipientName: params.booker_name,
+      });
 
       setProcessing(false);
       return { success: true, bookingId: booking.id, confirmationId };
