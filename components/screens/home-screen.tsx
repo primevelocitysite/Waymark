@@ -16,10 +16,9 @@ import { cn } from '@/lib/utils';
 import { formatPrice, formatRating, getGreeting } from '@/lib/format';
 import { useListings, useFeaturedListings, useSavedListings } from '@/hooks/use-data';
 import { ListingCard } from '@/components/listing-card';
-import { Hero3DIcon } from '@/components/hero-3d-icon';
 import { CATEGORIES } from '@/lib/types';
 import type { Listing, Category } from '@/lib/types';
-import { Hotel, Home, Plane, Car, Sailboat, Heart, MapPin } from 'lucide-react';
+import { Hotel, Home, Plane, Car, Sailboat, Heart, MapPin, Sparkles as SparklesIcon } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Hotel: <Hotel className="h-5 w-5" />,
@@ -155,9 +154,9 @@ export function HomeScreen({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
 
-          {/* 3D icon overlay */}
-          <div className="absolute top-4 right-4 w-24 h-24 opacity-90">
-            <Hero3DIcon category={heroListing.category} className="w-full h-full" />
+          {/* Category icon overlay */}
+          <div className="absolute top-4 right-4 w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+            {CATEGORY_ICONS[heroListing.category.charAt(0).toUpperCase() + heroListing.category.slice(1)] || <SparklesIcon className="h-6 w-6 text-white" />}
           </div>
 
           {/* Badge */}

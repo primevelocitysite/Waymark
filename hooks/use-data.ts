@@ -380,5 +380,17 @@ export function useAdminListings() {
     refetch();
   }, [refetch]);
 
-  return { listings, loading, refetch, deleteListing, toggleFeatured };
+  const addListing = useCallback(async (data: Record<string, unknown>) => {
+    const { error } = await supabase.from('listings').insert(data);
+    refetch();
+    return { error };
+  }, [refetch]);
+
+  const updateListing = useCallback(async (id: string, data: Record<string, unknown>) => {
+    const { error } = await supabase.from('listings').update(data).eq('id', id);
+    refetch();
+    return { error };
+  }, [refetch]);
+
+  return { listings, loading, refetch, deleteListing, toggleFeatured, addListing, updateListing };
 }
