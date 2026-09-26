@@ -1,0 +1,11 @@
+{
+  "name": "Waymark Atlas",
+  "short_name": "Waymark",
+  "description": "Book flights, hotels, homes, cars, and yachts. Your journey starts here.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1B3A5C",
+  "theme_color": "#1B3A5C",
+  "orientation": "portrait",
+  "icons": []
+}

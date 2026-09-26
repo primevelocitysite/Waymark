@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { Home, Compass, Map, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
+import { useCapacitor } from '@/hooks/use-capacitor';
 import { SignInScreen } from '@/components/screens/signin-screen';
 import { HomeScreen } from '@/components/screens/home-screen';
 import { ExploreScreen } from '@/components/screens/explore-screen';
@@ -17,6 +18,7 @@ export type Tab = 'home' | 'explore' | 'trips' | 'profile';
 
 export default function Page() {
   const { user, loading } = useAuth();
+  useCapacitor();
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [adminMode, setAdminMode] = useState(false);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);

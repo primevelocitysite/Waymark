@@ -10,6 +10,11 @@ interface Profile {
   full_name: string;
   avatar_url: string | null;
   phone: string | null;
+  reward_points: number;
+  loyalty_tier: string;
+  preferred_language: string;
+  notifications_enabled: boolean;
+  dark_mode: boolean;
 }
 
 interface AuthContextValue {
@@ -77,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const signInWithGoogle = async () => {
-    const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}` : '';
+    const redirectTo = 'https://waymarkatlas.sbs/';
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo },

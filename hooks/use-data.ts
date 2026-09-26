@@ -403,3 +403,80 @@ export function useAdminListings() {
 
   return { listings, loading, refetch, deleteListing, toggleFeatured, addListing, updateListing };
 }
+
+export function useUserStats() {
+  const [stats, setStats] = useState({ totalTrips: 0, upcoming: 0, totalSpent: 0, nights: 0, savedCount: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchStats() {
+      const [bookingsRes, savedRes] = await Promise.all([
+        supabase.from('bookings').select('check_in, check_out, total_price, status').order('created_at', { ascending: false }),
+        supabase.from('saved_listings').select('id'),
+      ]);
+
+      if (cancelled) return;
+
+      const bookings = (bookingsRes.data || []) as any[];
+      const savedCount = savedRes.data?.length || 0;
+      const now = new Date();
+      const upcoming = bookings.filter((b) => new Date(b.check_out) >= now && b.status !== 'cancelled').length;
+      const totalSpent = bookings
+        .filter((b) => b.status === 'completed' || b.status === 'confirmed')
+        .reduce((sum, b) => sum + b.total_price, 0);
+      const nights = bookings.reduce((sum, b) => {
+        const n = Math.round((new Date(b.check_out).getTime() - new Date(b.check_in).getTime()) / 86400000);
+        return sum + Math.max(1, n);
+      }, 0);
+
+      setStats({ totalTrips: bookings.length, upcoming, totalSpent, nights, savedCount });
+      setLoading(false);
+    }
+    fetchStats();
+    return () => { cancelled = true; };
+  }, []);
+
+  return { stats, loading };
+}
+
+export function useUserPayments() {
+  const [cards, setCards] = useState<{ brand: string; last4: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchCards() {
+      const { data } = await supabase
+        .from('payments')
+        .select('card_brand, card_last4')
+        .not('card_brand', 'is', null)
+        .order('created_at', { ascending: false });
+      if (cancelled) return;
+      const uniqueCards = (data || []).reduce((acc: { brand: string; last4: string }[], p: any) => {
+        const exists = acc.some((c) => c.brand === p.card_brand && c.last4 === p.card_last4);
+        if (!exists && p.card_brand && p.card_last4) {
+          acc.push({ brand: p.card_brand, last4: p.card_last4 });
+        }
+        return acc;
+      }, []);
+      setCards(uniqueCards);
+      setLoading(false);
+    }
+    fetchCards();
+    return () => { cancelled = true; };
+  }, []);
+
+  return { cards, loading };
+}
+
+export function useUpdateProfile() {
+  const update = useCallback(async (data: Record<string, unknown>) => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return { error: 'Not authenticated' };
+    const { error } = await supabase.from('profiles').update(data).eq('id', userData.user.id);
+    return { error: error?.message || null };
+  }, []);
+
+  return { update };
+}
